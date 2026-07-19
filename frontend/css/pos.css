@@ -650,15 +650,9 @@ table.items tbody tr{ border-bottom: 1px dotted #d8dcc9; }
 }
 
 @media print {
-    body * {
+    .app-layout,
+    #cameraModal {
         display: none !important;
-    }
-
-    #invoiceModal,
-    #invoiceModal .ticket,
-    #invoiceModal .ticket * {
-        display: block !important;
-        visibility: visible !important;
     }
 
     html, body {
@@ -671,19 +665,14 @@ table.items tbody tr{ border-bottom: 1px dotted #d8dcc9; }
     }
 
     #invoiceModal {
+        display: block !important;
         position: static !important;
         width: 80mm !important;
         max-width: 80mm !important;
         margin: 0 auto !important;
         padding: 0 !important;
         background: transparent !important;
-    }
-
-    .overlay {
-        position: static !important;
-        background: transparent !important;
         backdrop-filter: none !important;
-        padding: 0 !important;
     }
 
     .ticket {
@@ -694,16 +683,44 @@ table.items tbody tr{ border-bottom: 1px dotted #d8dcc9; }
         border-radius: 0 !important;
     }
 
-    #invoiceModal .cerrar,
-    #invoiceModal .acciones,
-    #invoiceModal .btn,
-    #invoiceModal .btn-imprimir,
-    #invoiceModal .btn-cerrar-secundario {
+    .cerrar,
+    .acciones {
         display: none !important;
     }
 
     .contenido {
         padding: 12px 8px 8px !important;
+    }
+
+    .sello {
+        display: flex !important;
+    }
+
+    .meta .fila,
+    .resumen .fila {
+        display: flex !important;
+    }
+
+    table.items {
+        display: table !important;
+        width: 100% !important;
+    }
+
+    table.items thead {
+        display: table-header-group !important;
+    }
+
+    table.items tbody {
+        display: table-row-group !important;
+    }
+
+    table.items tr {
+        display: table-row !important;
+    }
+
+    table.items th,
+    table.items td {
+        display: table-cell !important;
     }
 
     .ticket, .contenido, table.items {

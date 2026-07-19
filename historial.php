@@ -338,16 +338,83 @@ $usuario = $_SESSION['usuario_activo'];
         .empty-state svg { margin-bottom: 12px; opacity: 0.4; }
 
         @media print {
-            body * { display: none !important; }
-            .receipt-overlay, .receipt-overlay .receipt-ticket,
-            .receipt-overlay .receipt-ticket * { display: block !important; visibility: visible !important; }
-            html, body { width: 80mm !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
-            .receipt-overlay { position: static !important; background: transparent !important; backdrop-filter: none !important; padding: 0 !important; }
-            .receipt-ticket { box-shadow: none !important; max-width: 80mm !important; width: 80mm !important; border-radius: 0 !important; margin: 0 auto !important; }
-            .receipt-overlay .receipt-close, .receipt-overlay .receipt-actions { display: none !important; }
-            .receipt-body { padding: 10px 6px 6px !important; }
-            .receipt-dentado { display: block !important; }
-            @page { size: 80mm auto; margin: 2mm; }
+            .app-layout,
+            .detail-overlay {
+                display: none !important;
+            }
+
+            html, body {
+                width: 80mm !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #fff !important;
+            }
+
+            .receipt-overlay {
+                display: block !important;
+                position: static !important;
+                background: transparent !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+            }
+
+            .receipt-ticket {
+                box-shadow: none !important;
+                max-width: 80mm !important;
+                width: 80mm !important;
+                border-radius: 0 !important;
+                margin: 0 auto !important;
+            }
+
+            .receipt-close,
+            .receipt-actions {
+                display: none !important;
+            }
+
+            .receipt-body {
+                padding: 10px 6px 6px !important;
+            }
+
+            .receipt-sello {
+                display: flex !important;
+            }
+
+            .receipt-meta .fila,
+            .receipt-summary .fila {
+                display: flex !important;
+            }
+
+            .receipt-table {
+                display: table !important;
+                width: 100% !important;
+            }
+
+            .receipt-table thead {
+                display: table-header-group !important;
+            }
+
+            .receipt-table tbody {
+                display: table-row-group !important;
+            }
+
+            .receipt-table tr {
+                display: table-row !important;
+            }
+
+            .receipt-table th,
+            .receipt-table td {
+                display: table-cell !important;
+            }
+
+            .receipt-dentado {
+                display: block !important;
+            }
+
+            @page {
+                size: 80mm auto;
+                margin: 2mm;
+            }
         }
     </style>
 </head>
@@ -595,7 +662,6 @@ $usuario = $_SESSION['usuario_activo'];
                     searchSuggestions.classList.add('open');
                     searchSuggestions.querySelectorAll('[data-id]').forEach(function(el) {
                         el.addEventListener('click', function() {
-                            searchInput.value = '#' + this.dataset.id;
                             searchSuggestions.classList.remove('open');
                             runSearch();
                         });
