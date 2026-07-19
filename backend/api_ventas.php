@@ -162,7 +162,8 @@
             'estado' => 'success',
             'mensaje' => 'Venta registrada correctamente.',
             'venta_id' => $ventaId,
-            'total' => $total
+            'total' => $total,
+            'cajero' => $usuario['nombre']
         ]);
     } catch (Throwable $e) {
         $pdo->rollBack();

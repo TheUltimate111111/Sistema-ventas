@@ -1,9 +1,20 @@
-:root{
-    --verde-oscuro: #1b4332;
-    --verde-medio: #2d6a4f;
-    --verde-claro: #40916c;
-    --fondo-gris: #f4f6f9;
+/* ================================================
+   POS PAGE
+   ================================================ */
+
+@keyframes posFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
 }
+@keyframes posPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(45,106,79,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(45,106,79,0); }
+}
+@keyframes cartRowIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 body{
     margin:0;
     min-height:100vh;
@@ -11,20 +22,35 @@ body{
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 .pos-page{
-    min-height: 100vh;
-    padding: 24px;
+    height: calc(100vh - 76px);
+    padding: 16px 20px;
     background-color: var(--fondo-gris);
+    overflow: hidden;
 }
 .pos-grid{
     display: grid;
     grid-template-columns: 70% 30%;
-    gap: 24px;
+    gap: 20px;
+    height: 100%;
 }
 .pos-panel{
     background:#fff;
-    border-radius:16px;
-    box-shadow:0 16px 40px rgba(0,0,0,.06);
+    border-radius:20px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
     padding:24px;
+    animation: posFadeIn 0.5s ease both;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.pos-panel::-webkit-scrollbar{
+    width: 5px;
+}
+.pos-panel::-webkit-scrollbar-thumb{
+    background: #c1c9cf;
+    border-radius: 10px;
+}
+.pos-panel::-webkit-scrollbar-track{
+    background: transparent;
 }
 .pos-card{
     margin-bottom:20px;
@@ -64,35 +90,49 @@ body{
     padding: 18px 20px;
     font-size:1.2rem;
     font-weight:600;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pos-barcode-input:focus{
+    border-color: var(--verde-claro);
+    box-shadow: 0 0 0 4px rgba(45,106,79,0.12);
+    outline: none;
 }
 .pos-suggestions{
     display:flex;
     flex-direction:column;
-    gap:8px;
+    gap:6px;
+    margin-top: 4px;
 }
 .pos-suggestion{
-    border:1px solid #d1d5db;
+    border:1px solid #e5e7eb;
     background:#f8fafb;
     border-radius:10px;
-    padding:10px 12px;
+    padding:10px 14px;
     cursor:pointer;
+    transition: all 0.15s ease;
+    font-size: 0.92rem;
 }
 .pos-suggestion:hover{
     border-color: var(--verde-medio);
     background:#eefbf3;
+    transform: translateX(4px);
 }
 .pos-message{
     border-radius:10px;
-    padding:10px 12px;
-    font-size:0.95rem;
+    padding:12px 14px;
+    font-size:0.92rem;
+    font-weight: 500;
+    animation: posFadeIn 0.2s ease;
 }
 .pos-message.error{
-    background:#fee2e2;
+    background:#fef2f2;
     color:#b91c1c;
+    border: 1px solid #fecaca;
 }
 .pos-message.success{
-    background:#dcfce7;
+    background:#f0fdf4;
     color:#166534;
+    border: 1px solid #bbf7d0;
 }
 .pos-cart-table{
     width:100%;
@@ -108,6 +148,15 @@ body{
     font-weight:700;
     color:#2f4f4f;
     background:#f8fafb;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.pos-cart-table tbody tr {
+    animation: cartRowIn 0.25s ease both;
+}
+.pos-cart-table tbody tr:hover {
+    background: #f0faf4;
 }
 .pos-qty-buttons{
     display:flex;
@@ -115,21 +164,41 @@ body{
     gap:8px;
 }
 .pos-qty-buttons button{
-    width:30px;
-    height:30px;
+    width:32px;
+    height:32px;
     border:none;
-    border-radius:8px;
+    border-radius:10px;
     background:var(--verde-claro);
     color:#fff;
     cursor:pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pos-qty-buttons button:hover {
+    background: var(--verde-medio);
+    transform: scale(1.1);
+}
+.pos-qty-buttons button:active {
+    transform: scale(0.95);
+}
+.pos-qty-buttons span {
+    font-weight: 700;
+    font-size: 1rem;
+    min-width: 28px;
+    text-align: center;
 }
 .pos-placeholder{
-    color:#6b7280;
-    padding:42px;
+    color:#94a3b8;
+    padding:48px 20px;
     text-align:center;
-    border:2px dashed #d1d5db;
+    border:2px dashed #e2e8f0;
     border-radius:16px;
     margin-top:12px;
+    font-size: 0.92rem;
 }
 .pos-input-group{
     display:flex;
@@ -144,9 +213,15 @@ body{
 .pos-input-group input{
     width:100%;
     padding:14px 16px;
-    border:1px solid #d1d5db;
+    border:1.5px solid #e2e8f0;
     border-radius:12px;
     font-size:1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pos-input-group input:focus{
+    border-color: var(--verde-medio);
+    box-shadow: 0 0 0 3px rgba(45,106,79,0.1);
+    outline: none;
 }
 .pos-specs{
     background:#f8fafb;
@@ -166,10 +241,11 @@ body{
     color:#475569;
 }
 .pos-summary{
-    background:#f8fafb;
-    border-radius:14px;
-    padding:18px;
+    background: linear-gradient(135deg, #f0fdf4, #f8fafb);
+    border-radius:16px;
+    padding:20px;
     margin-bottom:20px;
+    border: 1px solid #e5e7eb;
 }
 .pos-summary-row{
     display:flex;
@@ -180,12 +256,15 @@ body{
 }
 .pos-summary-row.total{
     margin-top:12px;
+    padding-top:12px;
+    border-top: 2px solid var(--verde-medio);
 }
 .pos-summary-row strong{
     font-size:1.1rem;
 }
 .pos-summary-row.total strong{
-    font-size:1.3rem;
+    font-size:1.4rem;
+    color: var(--verde-oscuro);
 }
 .pos-action-btn{
     width:100%;
@@ -197,6 +276,32 @@ body{
     background:var(--verde-medio);
     color:#fff;
     cursor:pointer;
+    transition: all 0.2s ease;
+}
+.pos-action-btn:hover{
+    background: var(--verde-oscuro);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(45,106,79,0.3);
+}
+.pos-action-btn:active {
+    transform: translateY(0);
+}
+.pos-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+#btnProcesarVenta {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    font-size: 1.15rem;
+    padding: 20px;
+    letter-spacing: 0.5px;
+}
+#btnProcesarVenta:hover {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    box-shadow: 0 8px 28px rgba(22,163,74,0.35);
 }
 
 .barcode-actions{
@@ -229,11 +334,12 @@ body{
 .camera-modal-content{
     width:min(100%, 520px);
     background:#fff;
-    border-radius:18px;
+    border-radius:20px;
     overflow:hidden;
-    box-shadow:0 30px 80px rgba(0,0,0,.22);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
     display:flex;
     flex-direction:column;
+    animation: posFadeIn 0.3s ease;
 }
 
 .camera-modal-header{
@@ -267,15 +373,17 @@ body{
 }
 .receipt-preview{
     min-height:180px;
-    border:1px dashed #cbd5e1;
+    border:1.5px dashed #e2e8f0;
     border-radius:14px;
     padding:18px;
-    color:#475569;
-    font-size:.95rem;
+    color:#64748b;
+    font-size:.92rem;
     background:#fafbfc;
 }
 @media(max-width: 1100px){
     .pos-grid{grid-template-columns:1fr;}
+    .pos-page{height: auto; overflow: visible;}
+    .pos-panel{overflow-y: visible;}
 }
 
 .overlay{
@@ -284,7 +392,7 @@ body{
     inset: 0;
     z-index: 9999;
     background: rgba(6, 20, 12, 0.55);
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(6px);
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -520,24 +628,20 @@ table.items tbody tr{ border-bottom: 1px dotted #d8dcc9; }
     background: #e6efe1;
 }
 
-@media print {
-    body{ background:#fff; padding:0; }
-    .overlay{ position:static; background:none; backdrop-filter:none; padding:0; }
-    .ticket{ box-shadow:none; max-width:340px; margin:0 auto; }
-    .cerrar, .acciones{ display:none; }
-}
-
 @media (max-width:420px){
     .ticket{ max-width:100%; }
 }
 
 @media(max-width: 900px){
     .pos-page{
-        padding: 20px 16px;
+        padding: 16px;
+        height: auto;
+        overflow: visible;
     }
     .pos-panel{
         padding: 18px;
         border-radius: 20px;
+        overflow-y: visible;
     }
     .pos-input-group input,
     .pos-barcode-input{
@@ -590,11 +694,11 @@ table.items tbody tr{ border-bottom: 1px dotted #d8dcc9; }
         border-radius: 0 !important;
     }
 
-    .cerrar,
-    .acciones,
-    .btn,
-    .btn-imprimir,
-    .btn-cerrar-secundario {
+    #invoiceModal .cerrar,
+    #invoiceModal .acciones,
+    #invoiceModal .btn,
+    #invoiceModal .btn-imprimir,
+    #invoiceModal .btn-cerrar-secundario {
         display: none !important;
     }
 
@@ -615,10 +719,9 @@ table.items tbody tr{ border-bottom: 1px dotted #d8dcc9; }
     .dentado-bottom {
         display: block !important;
     }
-
-    @page {
-        size: 80mm auto;
-        margin: 2mm;
-    }
 }
 
+@page {
+    size: 80mm auto;
+    margin: 2mm;
+}

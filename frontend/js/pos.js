@@ -382,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="fila"><span>Factura ID</span><b>#${invoice.venta_id}</b></div>
                     <div class="fila"><span>Fecha</span><b>${invoice.fecha}</b></div>
                     <div class="fila"><span>Cliente</span><b>${invoice.cliente}</b></div>
+                    <div class="fila"><span>Cajero</span><b>${invoice.cajero || 'N/A'}</b></div>
                 </div>
 
                 <table class="items">
@@ -500,6 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 venta_id: result.venta_id,
                 fecha: new Date().toLocaleString('es-ES'),
                 cliente: payload.cliente,
+                cajero: result.cajero || '',
                 items: cart,
                 subtotal,
                 iva,

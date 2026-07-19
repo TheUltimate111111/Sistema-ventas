@@ -23,7 +23,7 @@ $usuario = $_SESSION['usuario_activo'];
 </head>
 
 <body>
-    <div class="d-flex">
+    <div class="app-layout">
         <?php include 'backend/includes/sidebar.php'; ?>
         <div id="content" class="w-100">
             <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4 p-3">

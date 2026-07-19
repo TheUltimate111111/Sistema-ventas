@@ -38,7 +38,7 @@ $usuario = $_SESSION['usuario_activo'];
     </style>
 </head>
 <body>
-    <div class="d-flex">
+    <div class="app-layout">
         <?php include 'backend/includes/sidebar.php'; ?>
         <div id="content" class="w-100">
             <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4 p-3">
@@ -54,11 +54,8 @@ $usuario = $_SESSION['usuario_activo'];
             </nav>
             <div class="container-fluid px-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <form class="d-flex" method="GET" action="clientes.php">
-                        <input name="q" value="<?php echo htmlspecialchars($search, ENT_QUOTES); ?>" class="form-control me-2" type="search" placeholder="Buscar cliente por c�dula o nombre" aria-label="Buscar">
-                        <button class="btn btn-verde" type="submit">Buscar</button>
-                    </form>
-                    <span class="text-muted">Total clientes: <?php echo count($clientes); ?></span>
+                    <input id="clienteSearch" class="form-control me-2" type="search" placeholder="Buscar cliente por cédula o nombre" aria-label="Buscar" style="max-width:380px;">
+                    <span class="text-muted">Total clientes: <span id="clienteCount"><?php echo count($clientes); ?></span></span>
                 </div>
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -75,10 +72,11 @@ $usuario = $_SESSION['usuario_activo'];
                                 </thead>
                                 <tbody>
                                     <?php if (count($clientes) === 0): ?>
-                                        <tr><td colspan="5" class="text-center text-muted py-4">No hay clientes registrados.</td></tr>
+                                        <tr id="noResults" class="text-center text-muted py-4"><td colspan="5">No hay clientes registrados.</td></tr>
                                     <?php else: ?>
+                                        <tr id="noResults" class="text-center text-muted py-4 d-none"><td colspan="5">No se encontraron clientes.</td></tr>
                                         <?php foreach ($clientes as $cliente): ?>
-                                            <tr>
+                                            <tr data-cedula="<?php echo htmlspecialchars($cliente['cedula'] ?? '', ENT_QUOTES); ?>" data-nombre="<?php echo htmlspecialchars($cliente['nombre_completo'], ENT_QUOTES); ?>">
                                                 <td><?php echo htmlspecialchars((string)$cliente['id'], ENT_QUOTES); ?></td>
                                                 <td><?php echo htmlspecialchars($cliente['cedula'] ?? '-', ENT_QUOTES); ?></td>
                                                 <td><?php echo htmlspecialchars($cliente['nombre_completo'], ENT_QUOTES); ?></td>
@@ -95,5 +93,30 @@ $usuario = $_SESSION['usuario_activo'];
             </div>
         </div>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var searchInput = document.getElementById('clienteSearch');
+        var countEl = document.getElementById('clienteCount');
+        var noResults = document.getElementById('noResults');
+        var tbody = document.querySelector('table tbody');
+        if (!searchInput || !tbody) return;
+
+        var rows = Array.from(tbody.querySelectorAll('tr[data-cedula]'));
+
+        searchInput.addEventListener('input', function() {
+            var q = this.value.trim().toLowerCase();
+            var visible = 0;
+            rows.forEach(function(row) {
+                var cedula = (row.dataset.cedula || '').toLowerCase();
+                var nombre = (row.dataset.nombre || '').toLowerCase();
+                var show = q === '' || cedula.indexOf(q) !== -1 || nombre.indexOf(q) !== -1;
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            if (countEl) countEl.textContent = String(visible);
+            if (noResults) noResults.classList.toggle('d-none', visible !== 0);
+        });
+    });
+    </script>
 </body>
 </html>

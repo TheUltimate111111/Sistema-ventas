@@ -33,12 +33,12 @@ try {
     $detalles = $detalleStmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($detalles as $detalle) {
-        $productoStmt = $pdo->prepare('SELECT stock FROM productos WHERE id = ? LIMIT 1');
+        $productoStmt = $pdo->prepare('SELECT stock_disponible FROM productos WHERE id = ? LIMIT 1');
         $productoStmt->execute([(int)$detalle['producto_id']]);
         $producto = $productoStmt->fetch(PDO::FETCH_ASSOC);
 
         if ($producto) {
-            $updateStock = $pdo->prepare('UPDATE productos SET stock = stock + ? WHERE id = ?');
+            $updateStock = $pdo->prepare('UPDATE productos SET stock_disponible = stock_disponible + ? WHERE id = ?');
             $updateStock->execute([(int)$detalle['cantidad'], (int)$detalle['producto_id']]);
         }
     }

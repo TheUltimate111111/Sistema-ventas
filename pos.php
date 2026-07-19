@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="frontend/css/pos.css">
 </head>
 <body>
-    <div class="d-flex">
+    <div class="app-layout">
         <?php include 'backend/includes/sidebar.php'; ?>
 
         <div id="content" class="w-100">
