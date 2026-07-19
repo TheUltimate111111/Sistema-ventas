@@ -88,12 +88,16 @@ $usuario = $_SESSION['usuario_activo'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo - Sistema de Ventas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="frontend/css/dashboard.css">
     <style>
         .btn-verde {background-color: var(--verde-oscuro); color: white;}
         .btn-verde:hover {background-color: var(--verde-medio); color: white;}
+        #catalogModal .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -118,10 +122,10 @@ $usuario = $_SESSION['usuario_activo'];
                             <input id="catalogSearch" name="q" value="<?php echo htmlspecialchars($search, ENT_QUOTES); ?>" class="form-control" type="search" placeholder="Buscar producto por código o nombre" aria-label="Buscar">
                             <button id="catalogSearchButton" class="btn btn-verde" type="button">Buscar</button>
                         </div>
-                        <div id="catalogMessage" class="alert alert-success d-none mt-3" role="alert"></div>
+                        <div id="catalogMessage" class="alert <?php echo $message !== '' ? ($messageType === 'success' ? 'alert-success' : 'alert-danger') : 'd-none'; ?> mt-3" role="alert"><?php echo htmlspecialchars($message, ENT_QUOTES); ?></div>
                     </div>
                     <div class="d-flex align-items-center gap-3">
-                        <button id="btnNewProduct" class="btn btn-verde">+ Agregar producto</button>
+                        <button id="btnNewProduct" type="button" class="btn btn-verde">+ Agregar producto</button>
                         <span class="text-muted">Total productos: <span id="catalogCount"><?php echo count($productos); ?></span></span>
                     </div>
                 </div>
@@ -210,7 +214,7 @@ $usuario = $_SESSION['usuario_activo'];
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-9ndCyUaId4L1k8R+biYS2szLj4jz2Cbh5luBu5w5u5qvXn2roKkDedbuoNIpI2xg" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="frontend/js/catalogo.js"></script>
 </body>
 </html>

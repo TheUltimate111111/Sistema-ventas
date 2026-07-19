@@ -266,9 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const invoiceModal = document.getElementById('invoiceModal');
     const invoiceModalBody = document.getElementById('invoiceModalBody');
-    const btnCloseInvoiceModal = document.getElementById('btnCloseInvoiceModal');
     const closeInvoiceButton = document.getElementById('closeInvoiceModal');
-    const btnImprimirFactura = document.getElementById('btnImprimirFactura');
     const showInvoiceButton = document.getElementById('btnMostrarFactura');
     const clientDetails = document.getElementById('clientDetails');
     const clienteCedula = document.getElementById('clienteCedula');
@@ -429,10 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
         invoiceModal.classList.remove('show');
     };
 
-    const printInvoice = () => {
-        window.print();
-    };
-
     const toggleClientDetails = () => {
         const clientValue = customerInput?.value.trim() || '';
         if (clientValue !== '' && clientValue.toLowerCase() !== 'consumidor final') {
@@ -560,9 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             openInvoiceModal(lastInvoice);
         }
     });
-    btnCloseInvoiceModal?.addEventListener('click', closeInvoice);
     closeInvoiceButton?.addEventListener('click', closeInvoice);
-    btnImprimirFactura?.addEventListener('click', printInvoice);
     btnCameraScan?.addEventListener('click', startCameraScan);
     closeCameraModal?.addEventListener('click', closeCameraDialog);
     toggleClientDetails();

@@ -16,36 +16,12 @@ if ($colsStmt->fetch()) {
     $hasEstado = true;
 }
 
-$search = trim((string)($_GET['q'] ?? ''));
-$fechaInicio = $_GET['fecha_inicio'] ?? '';
-$fechaFin = $_GET['fecha_fin'] ?? '';
-$estadoFiltro = $_GET['estado'] ?? '';
-$params = [];
-
 $estadoCol = $hasEstado ? "v.estado" : "'Pagada' AS estado";
 
-$sql = "SELECT v.id, v.fecha_emision, c.nombre_completo AS cliente, u.usuario AS cajero, v.subtotal, v.iva, v.total_factura, v.monto_pagado, v.cambio, $estadoCol FROM ventas v INNER JOIN clientes c ON v.cliente_id = c.id INNER JOIN usuarios u ON v.usuario_id = u.id WHERE 1=1";
-
-if ($search !== '') {
-    $sql .= ' AND (v.id = ? OR c.nombre_completo LIKE ? OR c.cedula LIKE ? OR u.usuario LIKE ?)';
-    $params = [$search, "%$search%", "%$search%", "%$search%"];
-}
-if ($fechaInicio !== '') {
-    $sql .= ' AND DATE(v.fecha_emision) >= ?';
-    $params[] = $fechaInicio;
-}
-if ($fechaFin !== '') {
-    $sql .= ' AND DATE(v.fecha_emision) <= ?';
-    $params[] = $fechaFin;
-}
-if ($hasEstado && $estadoFiltro !== '') {
-    $sql .= ' AND v.estado = ?';
-    $params[] = $estadoFiltro;
-}
-$sql .= ' ORDER BY v.fecha_emision DESC';
+$sql = "SELECT v.id, v.fecha_emision, c.nombre_completo AS cliente, c.cedula, u.usuario AS cajero, v.subtotal, v.iva, v.total_factura, v.monto_pagado, v.cambio, $estadoCol FROM ventas v INNER JOIN clientes c ON v.cliente_id = c.id INNER JOIN usuarios u ON v.usuario_id = u.id ORDER BY v.fecha_emision DESC";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute($params);
+$stmt->execute();
 $ventas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $totales = [
@@ -113,40 +89,6 @@ $usuario = $_SESSION['usuario_activo'];
             border-color: var(--verde-medio);
             box-shadow: 0 0 0 3px rgba(45,106,79,0.12);
         }
-
-        .search-wrap {
-            position: relative;
-        }
-        .search-wrap input {
-            width: 100%;
-            padding-right: 36px;
-        }
-        .search-wrap .search-spinner {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            width: 16px; height: 16px; border: 2px solid #e2e8f0; border-top-color: var(--verde-medio);
-            border-radius: 50%; animation: spin 0.6s linear infinite; display: none;
-        }
-        .search-wrap.loading .search-spinner { display: block; }
-        .search-wrap.loading input { padding-right: 38px; }
-        @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
-
-        .search-suggestions {
-            position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
-            background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px;
-            margin-top: 4px; max-height: 260px; overflow-y: auto;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: none;
-        }
-        .search-suggestions.open { display: block; }
-        .search-suggestion-item {
-            padding: 10px 14px; cursor: pointer; transition: background 0.1s;
-            border-bottom: 1px solid #f1f5f9; font-size: 0.88rem;
-        }
-        .search-suggestion-item:last-child { border-bottom: none; }
-        .search-suggestion-item:hover { background: #f0faf4; }
-        .search-suggestion-item .sug-id { font-weight: 700; color: var(--verde-oscuro); }
-        .search-suggestion-item .sug-client { color: #475569; }
-        .search-suggestion-item .sug-date { color: #94a3b8; font-size: 0.8rem; }
-        .search-suggestion-item .sug-total { float: right; font-weight: 700; color: var(--verde-oscuro); }
 
         .table-card {
             animation: fadeSlideUp 0.5s ease 0.3s both;
@@ -486,31 +428,24 @@ $usuario = $_SESSION['usuario_activo'];
                         <div class="row g-2 align-items-end">
                             <div class="col-md-3">
                                 <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#64748b;">Buscar factura</label>
-                                <div class="search-wrap" id="searchWrap">
-                                    <input id="searchInput" class="form-control" type="text"
-                                        placeholder="ID, cliente, cedula o cajero..." autocomplete="off"
-                                        value="<?php echo htmlspecialchars($search, ENT_QUOTES); ?>">
-                                    <div class="search-spinner"></div>
-                                    <div class="search-suggestions" id="searchSuggestions"></div>
-                                </div>
+                                <input id="searchInput" class="form-control" type="search"
+                                    placeholder="ID, cliente, cedula o cajero..." autocomplete="off">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#64748b;">Fecha Inicio</label>
-                                <input id="filterFechaInicio" class="form-control" type="date"
-                                    value="<?php echo htmlspecialchars($fechaInicio, ENT_QUOTES); ?>">
+                                <input id="filterFechaInicio" class="form-control" type="date">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#64748b;">Fecha Fin</label>
-                                <input id="filterFechaFin" class="form-control" type="date"
-                                    value="<?php echo htmlspecialchars($fechaFin, ENT_QUOTES); ?>">
+                                <input id="filterFechaFin" class="form-control" type="date">
                             </div>
                             <?php if ($hasEstado): ?>
                             <div class="col-md-2">
                                 <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#64748b;">Estado</label>
                                 <select id="filterEstado" class="form-select">
                                     <option value="">Todos</option>
-                                    <option value="Pagada" <?php echo $estadoFiltro === 'Pagada' ? 'selected' : ''; ?>>Pagada</option>
-                                    <option value="Anulada" <?php echo $estadoFiltro === 'Anulada' ? 'selected' : ''; ?>>Anulada</option>
+                                    <option value="Pagada">Pagada</option>
+                                    <option value="Anulada">Anulada</option>
                                 </select>
                             </div>
                             <?php endif; ?>
@@ -550,7 +485,13 @@ $usuario = $_SESSION['usuario_activo'];
                                         </td></tr>
                                     <?php else: ?>
                                         <?php foreach ($ventas as $venta): ?>
-                                            <tr>
+                                            <tr data-id="<?php echo (int)$venta['id']; ?>"
+                                                data-cliente="<?php echo htmlspecialchars($venta['cliente'], ENT_QUOTES); ?>"
+                                                data-cedula="<?php echo htmlspecialchars($venta['cedula'] ?? '', ENT_QUOTES); ?>"
+                                                data-cajero="<?php echo htmlspecialchars($venta['cajero'], ENT_QUOTES); ?>"
+                                                data-fecha="<?php echo htmlspecialchars(substr($venta['fecha_emision'], 0, 10), ENT_QUOTES); ?>"
+                                                data-estado="<?php echo htmlspecialchars(($venta['estado'] ?? 'Pagada'), ENT_QUOTES); ?>"
+                                                data-total="<?php echo (float)$venta['total_factura']; ?>">
                                                 <td><strong style="color:var(--verde-oscuro);">#<?php echo htmlspecialchars((string)$venta['id'], ENT_QUOTES); ?></strong></td>
                                                 <td><?php echo htmlspecialchars($venta['fecha_emision'], ENT_QUOTES); ?></td>
                                                 <td><?php echo htmlspecialchars($venta['cliente'], ENT_QUOTES); ?></td>
@@ -581,6 +522,7 @@ $usuario = $_SESSION['usuario_activo'];
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
+                                        <tr id="noResults" class="d-none"><td colspan="7" class="text-center text-muted py-4">No se encontraron ventas con los filtros seleccionados.</td></tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -627,134 +569,71 @@ $usuario = $_SESSION['usuario_activo'];
 
     <script>
     let currentDetailVentaId = null;
-    let searchDebounce = null;
 
     function formatMoney(v) { return '$' + Number(v).toFixed(2); }
 
-    /* ---- SEARCH LIVE ---- */
-    const searchInput = document.getElementById('searchInput');
-    const searchSuggestions = document.getElementById('searchSuggestions');
-    const searchWrap = document.getElementById('searchWrap');
-
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchDebounce);
-        var q = this.value.trim();
-        if (q.length < 2) { searchSuggestions.classList.remove('open'); return; }
-        searchWrap.classList.add('loading');
-        searchDebounce = setTimeout(function() {
-            fetch('backend/api_historial.php?q=' + encodeURIComponent(q))
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    searchWrap.classList.remove('loading');
-                    if (!data.ventas || data.ventas.length === 0) {
-                        searchSuggestions.innerHTML = '<div class="search-suggestion-item" style="color:#94a3b8;">Sin resultados</div>';
-                        searchSuggestions.classList.add('open');
-                        return;
-                    }
-                    searchSuggestions.innerHTML = data.ventas.slice(0, 8).map(function(v) {
-                        return '<div class="search-suggestion-item" data-id="' + v.id + '">' +
-                            '<span class="sug-id">#' + v.id + '</span> ' +
-                            '<span class="sug-client">' + (v.cliente || '') + '</span> ' +
-                            '<span class="sug-date">' + (v.fecha_emision || '').substring(0, 10) + '</span>' +
-                            '<span class="sug-total">$' + Number(v.total_factura).toFixed(2) + '</span>' +
-                        '</div>';
-                    }).join('');
-                    searchSuggestions.classList.add('open');
-                    searchSuggestions.querySelectorAll('[data-id]').forEach(function(el) {
-                        el.addEventListener('click', function() {
-                            searchSuggestions.classList.remove('open');
-                            runSearch();
-                        });
-                    });
-                })
-                .catch(function() { searchWrap.classList.remove('loading'); });
-        }, 300);
-    });
-
-    searchInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            searchSuggestions.classList.remove('open');
-            runSearch();
-        }
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!searchWrap.contains(e.target)) searchSuggestions.classList.remove('open');
-    });
-
-    /* ---- LIVE FILTER (fechas y estado filtran en tiempo real) ---- */
+    /* ---- FILTRADO AUTOMÁTICO CLIENT-SIDE ---- */
+    var searchInput = document.getElementById('searchInput');
     var filterFechaInicio = document.getElementById('filterFechaInicio');
     var filterFechaFin = document.getElementById('filterFechaFin');
     var filterEstado = document.getElementById('filterEstado');
-    if (filterFechaInicio) filterFechaInicio.addEventListener('change', runSearch);
-    if (filterFechaFin) filterFechaFin.addEventListener('change', runSearch);
-    if (filterEstado) filterEstado.addEventListener('change', runSearch);
+    var tableBody = document.getElementById('tableBody');
+    var noResults = document.getElementById('noResults');
+    var statTotal = document.getElementById('statTotal');
+    var statCount = document.getElementById('statCount');
+    var statAvg = document.getElementById('statAvg');
+    var rows = Array.from(tableBody.querySelectorAll('tr[data-id]'));
 
-    document.getElementById('btnBuscar').addEventListener('click', runSearch);
+    function filterTable() {
+        var q = searchInput.value.trim().toLowerCase();
+        var fi = filterFechaInicio ? filterFechaInicio.value : '';
+        var ff = filterFechaFin ? filterFechaFin.value : '';
+        var est = filterEstado ? filterEstado.value : '';
+        var visibleCount = 0;
+        var totalVendido = 0;
+
+        rows.forEach(function(row) {
+            var id = (row.dataset.id || '').toLowerCase();
+            var cliente = (row.dataset.cliente || '').toLowerCase();
+            var cedula = (row.dataset.cedula || '').toLowerCase();
+            var cajero = (row.dataset.cajero || '').toLowerCase();
+            var fecha = row.dataset.fecha || '';
+            var estado = row.dataset.estado || '';
+            var total = parseFloat(row.dataset.total) || 0;
+
+            var matchSearch = q === '' || id.indexOf(q) !== -1 || cliente.indexOf(q) !== -1 || cedula.indexOf(q) !== -1 || cajero.indexOf(q) !== -1;
+            var matchFecha = true;
+            if (fi) matchFecha = matchFecha && fecha >= fi;
+            if (ff) matchFecha = matchFecha && fecha <= ff;
+            var matchEstado = est === '' || estado === est;
+
+            var show = matchSearch && matchFecha && matchEstado;
+            row.style.display = show ? '' : 'none';
+            if (show) { visibleCount++; totalVendido += total; }
+        });
+
+        if (noResults) noResults.classList.toggle('d-none', visibleCount !== 0);
+        var avg = visibleCount > 0 ? totalVendido / visibleCount : 0;
+        if (statTotal) statTotal.textContent = formatMoney(totalVendido);
+        if (statCount) statCount.textContent = visibleCount;
+        if (statAvg) statAvg.textContent = formatMoney(avg);
+    }
+
+    searchInput.addEventListener('input', filterTable);
+    if (filterFechaInicio) filterFechaInicio.addEventListener('change', filterTable);
+    if (filterFechaFin) filterFechaFin.addEventListener('change', filterTable);
+    if (filterEstado) filterEstado.addEventListener('change', filterTable);
+
+    document.getElementById('btnBuscar').addEventListener('click', filterTable);
     document.getElementById('btnLimpiar').addEventListener('click', function() {
         searchInput.value = '';
         if (filterFechaInicio) filterFechaInicio.value = '';
         if (filterFechaFin) filterFechaFin.value = '';
         if (filterEstado) filterEstado.value = '';
-        runSearch();
+        filterTable();
     });
 
-    function runSearch() {
-        var q = searchInput.value.trim().replace(/^#/, '');
-        var fi = filterFechaInicio ? filterFechaInicio.value : '';
-        var ff = filterFechaFin ? filterFechaFin.value : '';
-        var est = filterEstado ? filterEstado.value : '';
-
-        var params = [];
-        if (q) params.push('q=' + encodeURIComponent(q));
-        if (fi) params.push('fecha_inicio=' + fi);
-        if (ff) params.push('fecha_fin=' + ff);
-        if (est) params.push('estado=' + est);
-
-        var url = 'backend/api_historial.php' + (params.length ? '?' + params.join('&') : '');
-
-        fetch(url)
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.estado !== 'success') return;
-                updateStats(data.totales);
-                renderTable(data.ventas);
-            });
-    }
-
-    function updateStats(t) {
-        document.getElementById('statTotal').textContent = '$' + t.total_vendido.toFixed(2);
-        document.getElementById('statCount').textContent = t.cantidad;
-        document.getElementById('statAvg').textContent = '$' + t.promedio.toFixed(2);
-    }
-
-    function renderTable(ventas) {
-        var tbody = document.getElementById('tableBody');
-        if (!ventas.length) {
-            tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 5h6"/></svg><p class="mb-0">No hay ventas registradas con los filtros seleccionados.</p></div></td></tr>';
-            return;
-        }
-        tbody.innerHTML = ventas.map(function(v) {
-            var estado = v.estado || 'Pagada';
-            var badgeClass = estado === 'Anulada' ? 'badge-anulada' : 'badge-pagada';
-            var voidBtn = estado !== 'Anulada'
-                ? '<a href="backend/anular_venta.php?id=' + v.id + '" class="btn-action btn-void" onclick="return confirm(\'Seguro que deseas anular esta factura?\')" title="Anular"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg> Anular</a>'
-                : '';
-            return '<tr>' +
-                '<td><strong style="color:var(--verde-oscuro);">#' + v.id + '</strong></td>' +
-                '<td>' + (v.fecha_emision || '') + '</td>' +
-                '<td>' + (v.cliente || '') + '</td>' +
-                '<td>' + (v.cajero || '') + '</td>' +
-                '<td><strong>$' + Number(v.total_factura).toFixed(2) + '</strong></td>' +
-                '<td><span class="badge-status ' + badgeClass + '">' + estado + '</span></td>' +
-                '<td><div class="d-flex gap-1">' +
-                    '<button class="btn-action btn-view" type="button" onclick="verDetalle(' + v.id + ')" title="Ver detalles"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Ver</button>' +
-                    '<button class="btn-action btn-print" type="button" onclick="reimprimir(' + v.id + ')" title="Reimprimir"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Reimprimir</button>' +
-                    voidBtn +
-                '</div></td></tr>';
-        }).join('');
-    }
+    filterTable();
 
     /* ---- VER DETALLE ---- */
     async function verDetalle(ventaId) {
