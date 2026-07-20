@@ -72,13 +72,14 @@
 
                         <div class="pos-card pos-input-group">
                             <label for="clienteSearch">Cliente</label>
-                            <input id="clienteSearch" type="text" placeholder="Nombre del cliente" autocomplete="off" value="Consumidor Final">
+                            <input id="clienteSearch" type="text" placeholder="Nombre del cliente" autocomplete="off" value="Consumidor Final" maxlength="100" oninput="this.value=this.value.replace(/[^a-zA-ZáéíóúñüÁÉÍÓÚÑÜ\s]/g,'')">
+                            <input id="clienteId" type="hidden" value="">
                             <div id="clientSuggestions" class="pos-suggestions"></div>
                             <button id="btnConsumidorFinal" type="button" class="pos-action-btn" style="background:#0f766e;">Consumidor Final</button>
                         </div>
                         <div id="clientDetails" class="pos-card pos-input-group d-none">
                             <label for="clienteCedula">Cédula</label>
-                            <input id="clienteCedula" type="text" placeholder="Cédula del cliente">
+                            <input id="clienteCedula" type="text" placeholder="Cédula del cliente" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                             <label for="clienteCorreo">Correo</label>
                             <input id="clienteCorreo" type="email" placeholder="Correo del cliente">
                         </div>
@@ -110,7 +111,7 @@
 
                         <div class="pos-card pos-input-group">
                             <label for="montoPagado">Monto pagado</label>
-                            <input id="montoPagado" type="number" step="0.01" placeholder="Ingrese el pago del cliente">
+                            <input id="montoPagado" type="number" step="0.01" min="0" placeholder="Ingrese el pago del cliente">
                         </div>
                         <div class="pos-card pos-input-group">
                             <label for="vuelto">Vuelto</label>

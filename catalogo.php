@@ -25,8 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($codigo === '' || $nombre === '') {
             $message = 'Código y nombre son obligatorios.';
             $messageType = 'danger';
-        } elseif ($precio < 0 || $stock < 0) {
-            $message = 'Precio y stock deben ser valores válidos.';
+        } elseif ($precio <= 0) {
+            $message = 'El precio debe ser mayor a cero.';
+            $messageType = 'danger';
+        } elseif ($stock < 0 || $stock !== (int)$_POST['stock']) {
+            $message = 'El stock debe ser un número entero igual o mayor a cero.';
             $messageType = 'danger';
         } else {
             $stmt = $pdo->prepare('INSERT INTO productos (codigo_barras, nombre_producto, precio_actual, stock_disponible) VALUES (?, ?, ?, ?)');
@@ -44,8 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($id <= 0) {
             $message = 'Producto inválido para actualizar.';
             $messageType = 'danger';
-        } elseif ($precio < 0 || $stock < 0) {
-            $message = 'Precio y stock deben ser valores válidos.';
+        } elseif ($precio <= 0) {
+            $message = 'El precio debe ser mayor a cero.';
+            $messageType = 'danger';
+        } elseif ($stock < 0 || $stock !== (int)$_POST['stock']) {
+            $message = 'El stock debe ser un número entero igual o mayor a cero.';
             $messageType = 'danger';
         } else {
             $stmt = $pdo->prepare('UPDATE productos SET precio_actual = ?, stock_disponible = ? WHERE id = ?');
@@ -197,11 +203,11 @@ $usuario = $_SESSION['usuario_activo'];
                         </div>
                         <div class="mb-3">
                             <label for="productPrice" class="form-label">Precio</label>
-                            <input name="precio" id="productPrice" type="number" step="0.01" class="form-control" placeholder="0.00">
+                            <input name="precio" id="productPrice" type="number" step="0.01" min="0.01" class="form-control" placeholder="0.00">
                         </div>
                         <div class="mb-3">
                             <label for="productStock" class="form-label">Stock</label>
-                            <input name="stock" id="productStock" type="number" step="1" class="form-control" placeholder="0">
+                            <input name="stock" id="productStock" type="number" step="1" min="0" class="form-control" placeholder="0">
                         </div>
                         <div id="productModalMessage" class="alert d-none" role="alert"></div>
                     </div>

@@ -381,6 +381,19 @@ $usuario = $_SESSION['usuario_activo'];
                     <p class="text-muted mb-0" style="font-size:0.92rem;">Consulta, reimprime y administra facturas</p>
                 </div>
 
+                <?php if (isset($_GET['msg']) && $_GET['msg'] === 'anulada'): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius:12px;">
+                        Venta anulada correctamente. El stock fue restaurado.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                <?php endif; ?>
+                <?php if (isset($_GET['error'])): ?>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert" style="border-radius:12px;">
+                        <?php echo htmlspecialchars($_GET['error'], ENT_QUOTES); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                <?php endif; ?>
+
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <div class="card stat-card shadow-sm">
@@ -427,9 +440,14 @@ $usuario = $_SESSION['usuario_activo'];
                     <div class="card-body">
                         <div class="row g-2 align-items-end">
                             <div class="col-md-3">
-                                <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#64748b;">Buscar factura</label>
-                                <input id="searchInput" class="form-control" type="search"
-                                    placeholder="ID, cliente, cedula o cajero..." autocomplete="off">
+                                <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#64748b;">Buscar por factura</label>
+                                <input id="searchFactura" class="form-control" type="search"
+                                    placeholder="Número de factura..." autocomplete="off">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#64748b;">Buscar por cliente</label>
+                                <input id="searchCliente" class="form-control" type="search"
+                                    placeholder="Nombre o cédula..." autocomplete="off">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" style="font-size:0.8rem; font-weight:600; color:#64748b;">Fecha Inicio</label>
@@ -449,7 +467,7 @@ $usuario = $_SESSION['usuario_activo'];
                                 </select>
                             </div>
                             <?php endif; ?>
-                            <div class="col-md-3 d-flex gap-2">
+                            <div class="col-md-2 d-flex gap-2">
                                 <button class="btn btn-verde" type="button" id="btnBuscar">
                                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:4px;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                                     Buscar
@@ -573,7 +591,8 @@ $usuario = $_SESSION['usuario_activo'];
     function formatMoney(v) { return '$' + Number(v).toFixed(2); }
 
     /* ---- FILTRADO AUTOMÁTICO CLIENT-SIDE ---- */
-    var searchInput = document.getElementById('searchInput');
+    var searchFactura = document.getElementById('searchFactura');
+    var searchCliente = document.getElementById('searchCliente');
     var filterFechaInicio = document.getElementById('filterFechaInicio');
     var filterFechaFin = document.getElementById('filterFechaFin');
     var filterEstado = document.getElementById('filterEstado');
@@ -585,7 +604,8 @@ $usuario = $_SESSION['usuario_activo'];
     var rows = Array.from(tableBody.querySelectorAll('tr[data-id]'));
 
     function filterTable() {
-        var q = searchInput.value.trim().toLowerCase();
+        var qFactura = searchFactura.value.trim().toLowerCase();
+        var qCliente = searchCliente.value.trim().toLowerCase();
         var fi = filterFechaInicio ? filterFechaInicio.value : '';
         var ff = filterFechaFin ? filterFechaFin.value : '';
         var est = filterEstado ? filterEstado.value : '';
@@ -601,13 +621,14 @@ $usuario = $_SESSION['usuario_activo'];
             var estado = row.dataset.estado || '';
             var total = parseFloat(row.dataset.total) || 0;
 
-            var matchSearch = q === '' || id.indexOf(q) !== -1 || cliente.indexOf(q) !== -1 || cedula.indexOf(q) !== -1 || cajero.indexOf(q) !== -1;
+            var matchFactura = qFactura === '' || id.indexOf(qFactura) !== -1;
+            var matchCliente = qCliente === '' || cliente.indexOf(qCliente) !== -1 || cedula.indexOf(qCliente) !== -1;
             var matchFecha = true;
             if (fi) matchFecha = matchFecha && fecha >= fi;
             if (ff) matchFecha = matchFecha && fecha <= ff;
             var matchEstado = est === '' || estado === est;
 
-            var show = matchSearch && matchFecha && matchEstado;
+            var show = matchFactura && matchCliente && matchFecha && matchEstado;
             row.style.display = show ? '' : 'none';
             if (show) { visibleCount++; totalVendido += total; }
         });
@@ -619,14 +640,16 @@ $usuario = $_SESSION['usuario_activo'];
         if (statAvg) statAvg.textContent = formatMoney(avg);
     }
 
-    searchInput.addEventListener('input', filterTable);
+    searchFactura.addEventListener('input', filterTable);
+    searchCliente.addEventListener('input', filterTable);
     if (filterFechaInicio) filterFechaInicio.addEventListener('change', filterTable);
     if (filterFechaFin) filterFechaFin.addEventListener('change', filterTable);
     if (filterEstado) filterEstado.addEventListener('change', filterTable);
 
     document.getElementById('btnBuscar').addEventListener('click', filterTable);
     document.getElementById('btnLimpiar').addEventListener('click', function() {
-        searchInput.value = '';
+        searchFactura.value = '';
+        searchCliente.value = '';
         if (filterFechaInicio) filterFechaInicio.value = '';
         if (filterFechaFin) filterFechaFin.value = '';
         if (filterEstado) filterEstado.value = '';

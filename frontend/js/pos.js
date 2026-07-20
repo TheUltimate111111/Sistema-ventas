@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageBox = document.getElementById('posMessage');
     const cartContainer = document.getElementById('posCartItems');
     const customerInput = document.getElementById('clienteSearch');
+    const clienteIdInput = document.getElementById('clienteId');
     const amountInput = document.getElementById('montoPagado');
     const vueltoInput = document.getElementById('vuelto');
     const processButton = document.getElementById('btnProcesarVenta');
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let cart = [];
     let currentSuggestions = [];
+    let selectedClient = null;
 
     const formatCurrency = (value) => new Intl.NumberFormat('es-ES', {
         style: 'currency',
@@ -44,12 +46,33 @@ document.addEventListener('DOMContentLoaded', () => {
         messageBox.className = 'pos-message d-none';
     };
 
+    const sanitizeAmountInput = () => {
+        if (!amountInput) {
+            return 0;
+        }
+
+        const rawValue = amountInput.value;
+        if (rawValue === '' || rawValue === null) {
+            amountInput.value = '';
+            return 0;
+        }
+
+        const numericValue = parseFloat(rawValue);
+        if (!Number.isFinite(numericValue) || numericValue < 0) {
+            amountInput.value = '0';
+            return 0;
+        }
+
+        amountInput.value = String(numericValue);
+        return numericValue;
+    };
+
     const calculateTotals = () => {
         const subtotal = cart.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
         const iva = subtotal * 0.15;
         const total = subtotal + iva;
-        const paid = parseFloat(amountInput?.value || '0');
-        const vuelto = Number.isFinite(paid) && paid >= total ? paid - total : 0;
+        const paid = sanitizeAmountInput();
+        const vuelto = paid >= total ? paid - total : 0;
 
         if (subtotalValue) subtotalValue.textContent = formatCurrency(subtotal);
         if (ivaValue) ivaValue.textContent = formatCurrency(iva);
@@ -192,6 +215,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const updateClientFieldState = () => {
+        const clientValue = customerInput?.value.trim() || '';
+        const isConsumidorFinal = clientValue.toLowerCase() === 'consumidor final';
+
+        if (!clientValue || isConsumidorFinal) {
+            clientDetails?.classList.add('d-none');
+            if (clienteCedula) {
+                clienteCedula.value = '';
+                clienteCedula.readOnly = false;
+                clienteCedula.classList.remove('bg-light');
+            }
+            if (clienteCorreo) {
+                clienteCorreo.value = '';
+                clienteCorreo.readOnly = false;
+                clienteCorreo.classList.remove('bg-light');
+            }
+            selectedClient = null;
+            if (clienteIdInput) clienteIdInput.value = '';
+            return;
+        }
+
+        clientDetails?.classList.remove('d-none');
+
+        if (selectedClient && customerInput.value.trim().toLowerCase() === selectedClient.nombre_completo?.trim().toLowerCase()) {
+            if (clienteCedula) {
+                clienteCedula.value = selectedClient.cedula || '';
+                clienteCedula.readOnly = true;
+                clienteCedula.classList.add('bg-light');
+            }
+            if (clienteCorreo) {
+                clienteCorreo.value = selectedClient.correo || '';
+                clienteCorreo.readOnly = true;
+                clienteCorreo.classList.add('bg-light');
+            }
+            if (clienteIdInput) clienteIdInput.value = String(selectedClient.id);
+            return;
+        }
+
+        if (clienteCedula) {
+            clienteCedula.readOnly = false;
+            clienteCedula.classList.remove('bg-light');
+        }
+        if (clienteCorreo) {
+            clienteCorreo.readOnly = false;
+            clienteCorreo.classList.remove('bg-light');
+        }
+        selectedClient = null;
+        if (clienteIdInput) clienteIdInput.value = '';
+    };
+
     const searchClients = async (query) => {
         const trimmed = query.trim();
         if (trimmed.length < 2) {
@@ -220,10 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const selected = clientSuggestions.find((cliente) => cliente.id === Number(button.getAttribute('data-client-id')));
                     if (!selected) return;
                     customerInput.value = selected.nombre_completo;
+                    selectedClient = selected;
                     if (clienteCedula) clienteCedula.value = selected.cedula || '';
                     if (clienteCorreo) clienteCorreo.value = selected.correo || '';
                     clientSuggestionsBox.innerHTML = '';
-                    toggleClientDetails();
+                    updateClientFieldState();
                 });
             });
         } catch (error) {
@@ -428,14 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const toggleClientDetails = () => {
-        const clientValue = customerInput?.value.trim() || '';
-        if (clientValue !== '' && clientValue.toLowerCase() !== 'consumidor final') {
-            clientDetails?.classList.remove('d-none');
-        } else {
-            clientDetails?.classList.add('d-none');
-            if (clienteCedula) clienteCedula.value = '';
-            if (clienteCorreo) clienteCorreo.value = '';
-        }
+        updateClientFieldState();
     };
 
     const processSale = async () => {
@@ -445,22 +512,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const { subtotal, iva, total, vuelto } = calculateTotals();
-        const paid = parseFloat(amountInput?.value || '0');
+        const paid = sanitizeAmountInput();
         if (!Number.isFinite(paid) || paid < total) {
             showMessage('El monto pagado debe ser mayor o igual al total de la venta.', 'error');
             return;
         }
 
         const clientName = (customerInput?.value || 'Consumidor Final').trim() || 'Consumidor Final';
-        const cedula = clienteCedula?.value.trim() || '';
-        const correo = clienteCorreo?.value.trim() || '';
+        const cedula = selectedClient ? (selectedClient.cedula || '') : (clienteCedula?.value.trim() || '');
+        const correo = selectedClient ? (selectedClient.correo || '') : (clienteCorreo?.value.trim() || '');
 
         if (clientName.toLowerCase() !== 'consumidor final') {
-            if (cedula === '') {
+            if (!selectedClient && cedula === '') {
                 showMessage('Ingresa la cédula del cliente.', 'error');
                 return;
             }
-            if (correo === '' || !correo.includes('@')) {
+            if (!selectedClient && (correo === '' || !correo.includes('@'))) {
                 showMessage('Ingresa un correo válido del cliente.', 'error');
                 return;
             }
@@ -472,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cantidad: item.cantidad
             })),
             cliente: clientName,
+            cliente_id: selectedClient ? selectedClient.id : null,
             cedula: clientName.toLowerCase() !== 'consumidor final' ? cedula : '',
             correo: clientName.toLowerCase() !== 'consumidor final' ? correo : '',
             monto_pagado: paid
@@ -541,6 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     amountInput?.addEventListener('input', calculateTotals);
+    amountInput?.addEventListener('blur', calculateTotals);
     consumidorFinalButton?.addEventListener('click', () => {
         if (customerInput) {
             customerInput.value = 'Consumidor Final';

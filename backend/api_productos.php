@@ -22,13 +22,20 @@
                 break;
 
             case 'POST':
+                $precioPost = (float)($input['precio'] ?? 0);
+                $stockPost = (int)($input['stock'] ?? 0);
+                if ($precioPost <= 0 || $stockPost < 0) {
+                    http_response_code(400);
+                    echo json_encode(['estado' => 'error', 'mensaje' => 'Precio debe ser mayor a cero y stock no puede ser negativo.']);
+                    exit;
+                }
                 $sql = 'INSERT INTO productos (codigo_barras, nombre_producto, precio_actual, stock_disponible) VALUES (?, ?, ?, ?)';
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     $input['codigo'] ?? '',
                     $input['nombre'] ?? '',
-                    $input['precio'] ?? 0,
-                    $input['stock'] ?? 0
+                    $precioPost,
+                    $stockPost
                 ]);
                 echo json_encode(['estado' => 'success', 'mensaje' => 'Producto agregado correctamente']);
                 break;
@@ -41,11 +48,19 @@
                     exit;
                 }
 
+                $precioPut = (float)($input['precio'] ?? 0);
+                $stockPut = (int)($input['stock'] ?? 0);
+                if ($precioPut <= 0 || $stockPut < 0) {
+                    http_response_code(400);
+                    echo json_encode(['estado' => 'error', 'mensaje' => 'Precio debe ser mayor a cero y stock no puede ser negativo.']);
+                    exit;
+                }
+
                 $sql = 'UPDATE productos SET precio_actual = ?, stock_disponible = ? WHERE id = ?';
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
-                    $input['precio'] ?? 0,
-                    $input['stock'] ?? 0,
+                    $precioPut,
+                    $stockPut,
                     $id
                 ]);
                 echo json_encode(['estado' => 'success', 'mensaje' => 'Precio y stock actualizados correctamente']);

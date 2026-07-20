@@ -13,6 +13,12 @@ if ($ventaId <= 0) {
     exit;
 }
 
+$colsStmt = $pdo->prepare("SHOW COLUMNS FROM ventas LIKE 'estado'");
+$colsStmt->execute();
+if (!$colsStmt->fetch()) {
+    $pdo->exec("ALTER TABLE ventas ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT 'Pagada'");
+}
+
 $pdo->beginTransaction();
 
 try {
@@ -47,10 +53,10 @@ try {
     $updateVenta->execute(['Anulada', $ventaId]);
 
     $pdo->commit();
-    header('Location: ../historial.php');
+    header('Location: ../historial.php?msg=anulada');
     exit;
 } catch (Exception $e) {
     $pdo->rollBack();
-    header('Location: ../historial.php');
+    header('Location: ../historial.php?error=' . urlencode($e->getMessage()));
     exit;
 }

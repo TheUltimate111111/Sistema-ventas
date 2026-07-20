@@ -64,7 +64,7 @@ $usuario = $_SESSION['usuario_activo'];
                                 <thead class="table-light">
                                     <tr>
                                         <th>ID</th>
-                                        <th>C�dula</th>
+                                        <th>Cedula</th>
                                         <th>Nombre completo</th>
                                         <th>Correo</th>
                                         <th>Fecha registro</th>
