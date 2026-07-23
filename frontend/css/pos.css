@@ -50,6 +50,7 @@ body{
 }
 .pos-card{
     margin-bottom:20px;
+    overflow:hidden;
 }
 .pos-card:last-child{
     margin-bottom:0;
@@ -135,6 +136,8 @@ body{
 .pos-cart-table{
     width:100%;
     border-collapse:collapse;
+    table-layout:fixed;
+    word-break:break-word;
 }
 .pos-cart-table th,
 .pos-cart-table td{
@@ -149,6 +152,28 @@ body{
     font-size: 0.82rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+.pos-cart-table th:nth-child(1),
+.pos-cart-table td:nth-child(1){
+    width:45%;
+    overflow:hidden;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+    white-space:normal;
+    line-height:1.4;
+}
+.pos-cart-table th:nth-child(2),
+.pos-cart-table td:nth-child(2){
+    width:15%;
+    text-align:center;
+}
+.pos-cart-table th:nth-child(3),
+.pos-cart-table td:nth-child(3),
+.pos-cart-table th:nth-child(4),
+.pos-cart-table td:nth-child(4){
+    width:20%;
+    text-align:right;
+    white-space:nowrap;
 }
 .pos-cart-table tbody tr {
     animation: cartRowIn 0.25s ease both;

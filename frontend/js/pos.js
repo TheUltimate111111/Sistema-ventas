@@ -112,6 +112,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const rows = cart.map((item) => `
+            <tr>
+                <td class="pos-cart-product-name" title="${item.nombre}">${item.nombre}</td>
+                <td>
+                    <div class="pos-qty-buttons">
+                        <button type="button" data-action="decrease" data-id="${item.id}">-</button>
+                        <span>${item.cantidad}</span>
+                        <button type="button" data-action="increase" data-id="${item.id}">+</button>
+                    </div>
+                </td>
+                <td>${formatCurrency(item.precio)}</td>
+                <td>${formatCurrency(item.precio * item.cantidad)}</td>
+            </tr>
+        `).join('');
+
+        cartContainer.innerHTML = `
             <table class="pos-cart-table">
                 <thead>
                     <tr>
@@ -122,23 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>${item.nombre}</td>
-                        <td>
-                            <div class="pos-qty-buttons">
-                                <button type="button" data-action="decrease" data-id="${item.id}">-</button>
-                                <span>${item.cantidad}</span>
-                                <button type="button" data-action="increase" data-id="${item.id}">+</button>
-                            </div>
-                        </td>
-                        <td>${formatCurrency(item.precio)}</td>
-                        <td>${formatCurrency(item.precio * item.cantidad)}</td>
-                    </tr>
+                    ${rows}
                 </tbody>
             </table>
-        `).join('');
-
-        cartContainer.innerHTML = rows;
+        `;
         calculateTotals();
     };
 
