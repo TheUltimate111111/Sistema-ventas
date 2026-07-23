@@ -108,6 +108,8 @@ body{
     transition: all 0.15s ease;
     font-size: 0.92rem;
 }
+
+
 .pos-suggestion:hover{
     border-color: var(--verde-medio);
     background:#eefbf3;

@@ -9,6 +9,7 @@
     }
 
     require_once 'includes/conexion.php';
+    require_once 'includes/validaciones.php';
 
     header('Content-Type: application/json; charset=utf-8');
     header('Access-Control-Allow-Origin: *');
@@ -124,6 +125,12 @@
                 if ($cedula === '') {
                     http_response_code(400);
                     echo json_encode(['estado' => 'error', 'mensaje' => 'La cédula del cliente es obligatoria para clientes distintos a Consumidor Final.']);
+                    exit;
+                }
+
+                if (!validarCedulaO_RUC($cedula)) {
+                    http_response_code(400);
+                    echo json_encode(['estado' => 'error', 'mensaje' => 'La cédula o RUC ingresado no es válido. Debe ser una cédula ecuatoriana de 10 dígitos o un RUC de 13 dígitos válido.']);
                     exit;
                 }
 

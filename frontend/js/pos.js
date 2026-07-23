@@ -19,6 +19,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    function validarCedulaEcuatoriana(cedula) {
+        if (!/^\d{10}$/.test(cedula)) return false;
+        const provincia = parseInt(cedula.substring(0, 2), 10);
+        if (provincia < 1 || provincia > 24) return false;
+        if (parseInt(cedula[2], 10) >= 6) return false;
+        let suma = 0;
+        for (let i = 0; i < 9; i++) {
+            let digito = parseInt(cedula[i], 10);
+            let mult = (i % 2 === 0) ? digito * 2 : digito;
+            suma += (mult >= 10) ? mult - 9 : mult;
+        }
+        const residuo = suma % 10;
+        const verificador = (residuo === 0) ? 0 : 10 - residuo;
+        return verificador === parseInt(cedula[9], 10);
+    }
+
+    function validarCedulaO_RUC(doc) {
+        doc = doc.trim();
+        if (doc.length === 10) return validarCedulaEcuatoriana(doc);
+        if (doc.length === 13) return false;
+        return false;
+    }
+
     let cart = [];
     let currentSuggestions = [];
     let selectedClient = null;
@@ -525,6 +548,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (clientName.toLowerCase() !== 'consumidor final') {
             if (!selectedClient && cedula === '') {
                 showMessage('Ingresa la cédula del cliente.', 'error');
+                return;
+            }
+            if (!selectedClient && cedula !== '' && !validarCedulaO_RUC(cedula)) {
+                showMessage('La cédula o RUC ingresado no es válido.', 'error');
                 return;
             }
             if (!selectedClient && (correo === '' || !correo.includes('@'))) {

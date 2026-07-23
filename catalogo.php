@@ -167,6 +167,7 @@ $usuario = $_SESSION['usuario_activo'];
                                                 <td>
                                                     <button type="button" class="btn btn-sm btn-warning text-dark btn-edit-product">Editar</button>
                                                     <button type="button" class="btn btn-sm btn-danger btn-delete-product">Eliminar</button>
+                                                    
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
